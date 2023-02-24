@@ -40,8 +40,13 @@ app.get("/", async (request, response) => {
   }
 });
 
-app.get('/charge', async (req, res) => {
+app.post('/charge', async (req, res) => {
   try {
+  const {
+    number,
+    pin
+  } = req.body;
+         
     await run();
     
     const page = await browser.newPage();
@@ -58,22 +63,28 @@ app.get('/charge', async (req, res) => {
     
     await page.waitForSelector('input[name=frmGSM]');
     
-    await page.$eval('input[name=frmGSM]', el => el.value = 'Adenosine triphosphate');
-    await page.$eval('input[name=frmREGSM]', el => el.value = 'Adenosine triphosphate');
-    await page.$eval('input[name=frmpin]', el => el.value = 'Adenosine triphosphate');
+    await page.$eval('input[name=frmGSM]', el => el.value = number);
+    await page.$eval('input[name=frmREGSM]', el => el.value = number);
+    await page.$eval('input[name=frmpin]', el => el.value = pin);
 
     
-
+    await page.click('input[type="submit"]');
+  
  
     
-    await page.screenshot({path: __dirname+'/public/puppeteer.png'});
+    // await page.screenshot({path: __dirname+'/public/puppeteer.png'});
     
     await browser.close();
-   res.sendFile(__dirname+'/public/puppeteer.png');
-    
+  // res.sendFile(__dirname+'/public/puppeteer.png');
+    res.json({
+      msg: 'the request has been sent successfully' 
+    })
     
   } catch (error) {
     console.log(error);
+    res.json({
+      msg: `an error occurred ${error.message}`
+     }) 
   }
 })
 
