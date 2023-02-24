@@ -2,6 +2,7 @@ const express = require('express'),
     app = express(),
     puppeteer = require('puppeteer');
 let browser; 
+let cookies;
 
 app.use(express.json());
 
@@ -18,38 +19,45 @@ app.get("/", async (request, response) => {
   try {
     await run();
     const page = await browser.newPage();
+    if(cookies) {
+    	await page.setCookie(...cookies); 
+   } 
    await page.goto('https://www.touch.com.lb/autoforms/portal/touch/mytouch/pinrecharge',{waitUntil: 'networkidle0'});
     await page.setViewport({ width: 0, height: 0 });
-    
-    // await page.goto('https://pornhub.com', { waitUntil: 'networkidle0' })
                     
+                    if(!cookies) {
+                    	console.log('logging');
    await page.focus('#user')
  await page.keyboard.type(process.env.user)
   await page.focus('#pass')
  await page.keyboard.type(process.env.pass)
     
    await page.$eval('input[name=imageField]', el => el.click());
-   // await page.waitForNavigation();
+   //await page.waitForNavigation();
+   
+   cookies = await page.cookies(); 
+  } else {
+  	console.log('youre logged in btw') 
+ } 
+   
     await page.screenshot({path: __dirname+'/public/puppeteer.png'});
- //  const b = await page.content();
-//    const d = await page.evaluate(() => document.querySelector('*').outerHTML);
 
     await browser.close();
    response.sendFile(__dirname+'/public/puppeteer.png');
-  //response.send(d);
+  
   } catch (error) {
     console.log(error);
   }
 });
 
-app.get('/charge', async (req, res) => {
+/*
+app.post('/charge', async (req, res) => {
+	
   try {
-   let {
+   const {
     num,
     pin
   } = req.body;
-    num = 28277272777;
-    pin = 2827828823837372628;
          
     await run();
     
@@ -72,25 +80,30 @@ app.get('/charge', async (req, res) => {
     await page.$eval('input[name=frmpin]', (el, p) => el.value = p, pin);
 
     
-   // await page.click('input[type="submit"]');
+    await page.click('input[type="submit"]');
   
  
     
-     await page.screenshot({path: __dirname+'/public/puppeteer.png'});
+    await page.screenshot({path: __dirname+'/public/puppeteer.png'});
     
     await browser.close();
-   res.sendFile(__dirname+'/public/puppeteer.png');
- //   res.json({
-   //   msg: 'the request has been sent successfully' 
-//    })
+  // res.sendFile(__dirname+'/public/puppeteer.png');
+    res.json({
+      msg: 'the request has been sent successfully' 
+    })
     
   } catch (error) {
     console.log(error);
- //   res.json({
-   //   msg: `an error occurred ${error.message}`
-   //  }) 
+    res.json({
+     msg: `an error occurred ${error.message}`
+     }) 
   }
 })
+*/
+
+app.get('/show-state', (req, res) => {
+   res.sendFile(__dirname+'/public/puppeteer.png');
+}) 
 
 var listener = app.listen(process.env.PORT, function () {
   console.log('Your app is listening on port ' + listener.address().port);
