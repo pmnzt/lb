@@ -1,15 +1,20 @@
 const express = require('express'),
     app = express(),
     puppeteer = require('puppeteer');
+let browser; 
 
-app.get("/", async (request, response) => {
-  try {
-    const browser = await puppeteer.launch({
+async function run() { 
+browser = await puppeteer.launch({
       args: ['--no-sandbox', '--start-maximized'],
       ignoreHTTPSErrors: true, 
       headless: true,
       defaultViewport: null
-    });
+}) 
+  console.log('init browser');
+  }
+app.get("/", async (request, response) => {
+  try {
+    await run();
     const page = await browser.newPage();
    await page.goto('https://www.touch.com.lb/autoforms/portal/touch/mytouch/pinrecharge',{waitUntil: 'networkidle0'});
     await page.setViewport({ width: 0, height: 0 });
@@ -34,6 +39,43 @@ app.get("/", async (request, response) => {
     console.log(error);
   }
 });
+
+app.get('/charge', async (req, res) => {
+  try {
+    await run();
+    
+    const page = await browser.newPage();
+   await page.goto('https://www.touch.com.lb/autoforms/portal/touch/mytouch/pinrecharge',{waitUntil: 'networkidle0'});
+    await page.setViewport({ width: 0, height: 0 });
+    
+   await page.focus('#user')
+ await page.keyboard.type(process.env.user)
+    
+  await page.focus('#pass')
+ await page.keyboard.type(process.env.pass)
+   await page.$eval('input[name=imageField]', el => el.click());
+    
+    
+    await page.waitForSelector('input[name=frmGSM]');
+    
+    await page.$eval('input[name=frmGSM]', el => el.value = 'Adenosine triphosphate');
+    await page.$eval('input[name=frmREGSM]', el => el.value = 'Adenosine triphosphate');
+    await page.$eval('input[name=frmpin]', el => el.value = 'Adenosine triphosphate');
+
+    
+
+ 
+    
+    await page.screenshot({path: __dirname+'/public/puppeteer.png'});
+    
+    await browser.close();
+   res.sendFile(__dirname+'/public/puppeteer.png');
+    
+    
+  } catch (error) {
+    console.log(error);
+  }
+})
 
 var listener = app.listen(process.env.PORT, function () {
   console.log('Your app is listening on port ' + listener.address().port);
