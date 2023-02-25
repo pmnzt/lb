@@ -24,9 +24,11 @@ app.get("/", async (request, response) => {
    } 
    await page.goto('https://www.touch.com.lb/autoforms/portal/touch/mytouch/pinrecharge',{waitUntil: 'networkidle0'});
     await page.setViewport({ width: 0, height: 0 });
-                    
-                    if(!cookies) {
-                    	console.log('logging');
+    
+   const logged = await page.$eval('input[name=frmGSM]', () => true).catch(() => false)
+                console.log(logged)
+    if(!logged) {
+    console.log('logging');
    await page.focus('#user')
  await page.keyboard.type(process.env.user)
   await page.focus('#pass')
