@@ -87,13 +87,18 @@ app.post('/charge', async (req, res) => {
     
     const logged = await page.$eval('input[name=frmGSM]', () => true).catch(() => false)
     if(!logged) {
+      console.log('logging');
       await page.focus('#user')
       await page.keyboard.type(process.env.user)
     
       await page.focus('#pass')
       await page.keyboard.type(process.env.pass)
       await page.$eval('input[name=imageField]', el => el.click());
-    }    
+      
+      cookies = await page.cookies();
+    } else {
+      console.log('youre logged in btw')
+    }
    
     await page.waitForSelector('input[name=frmGSM]');
     
