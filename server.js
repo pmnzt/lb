@@ -10,6 +10,14 @@ app.get('/', (req, res) => {
    res.sendStatus(200);
 }) 
 
+app.get('/show-state', (req, res) => {
+  try {
+    res.sendFile(__dirname+'/public/puppeteer.png');
+  } catch (err) {
+    res.json({ msg: err.message })
+  }
+})
+
 app.use((req, res, next) => {
    const authHeader = req.headers['authorization']
    const pass = authHeader && authHeader.split(' ')[1] 
@@ -83,6 +91,7 @@ app.post('/charge', async (req, res) => {
     	await page.setCookie(...cookies); 
      }
    await page.goto('https://www.touch.com.lb/autoforms/portal/touch/mytouch/pinrecharge',{waitUntil: 'networkidle0'});
+    await page.setDefaultNavigationTimeout(0);
     await page.setViewport({ width: 0, height: 0 });
     
     const logged = await page.$eval('input[name=frmGSM]', () => true).catch(() => false)
@@ -102,16 +111,27 @@ app.post('/charge', async (req, res) => {
    
     await page.waitForSelector('input[name=frmGSM]');
     
-    await page.$eval('input[name=frmGSM]', (el, n) => el.value = n, num);
-    await page.$eval('input[name=frmREGSM]', (el, n) => el.value = n, num);
-    await page.$eval('input[name=frmpin]', (el, p) => el.value = p, pin);
+    await page.focus('input[name=frmGSM]')
+    await page.keyboard.type(num)
+    
+    await page.focus('input[name=frmREGSM]')
+    await page.keyboard.type(num)
+    
+    await page.focus('input[name=frmpin]')
+    await page.keyboard.type(pin)
 
     
-    await page.click('input[type="submit"]');
+    // await page.click('input[type="submit"]');
+    // await page.$eval('input[type=submit]', el => el.click());
+    
+    await page.screenshot({path: __dirname+'/public/puppeteer.png'});
+    
+    
+    await page.$eval('form[name="ThirdPartyRechargeForm"]', form => form.submit());
+    await page.waitForNavigation()
   
  
     
-    // await page.screenshot({path: __dirname+'/public/puppeteer.png'});
     
     await browser.close();
   // res.sendFile(__dirname+'/public/puppeteer.png');
@@ -126,6 +146,8 @@ app.post('/charge', async (req, res) => {
      }) 
   }
 })
+
+
 
 var listener = app.listen(process.env.PORT, function () {
   console.log('Your app is listening on port ' + listener.address().port);
