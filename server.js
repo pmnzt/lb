@@ -38,6 +38,8 @@ browser = await puppeteer.launch({
       headless: true,
       defaultViewport: null
 }) 
+  
+  console.log('browser init');
   }
 
 
@@ -51,7 +53,6 @@ app.post('/charge-mtc', async (req, res) => {
     pin
   } = req.body;
          
-    await run();
     
     const page = await browser.newPage();
     if(cookies) {
@@ -124,8 +125,7 @@ app.post('/charge-alfa', async (req, res) => {
     num,
     pin
   } = req.body;
-         
-    await run();
+    
     
     const page = await browser.newPage();
     
@@ -144,20 +144,21 @@ app.post('/charge-alfa', async (req, res) => {
     await page.focus('input#RechargeCode')
     await page.keyboard.type(pin)
     
-    await page.waitForTimeout(3000);
-    await page.$eval('form', form => form.submit());
+    await page.waitFor(1000);
+    await autoScroll(page);
+    // await page.$eval('form', form => form.submit());
     //await page.click("button[type=submit]");
      
     // await page.keyboard.press('Enter');
     
     // await page.$eval('form.form', form => form.submit());
     
-    // await page.waitForSelector('button[type=submit]');
-    // await page.focus('button[type=submit]')
-    // await page.click('button[type=submit]');  
+    await page.waitForSelector('button[type=submit]');
+    await page.focus('button[type=submit]')
+    await page.click('button[type=submit]');  
     
     
-    // await page.waitForNavigation()
+    await page.waitForNavigation()
     
     await page.screenshot({path: __dirname+'/public/puppeteer.png'});
     
@@ -177,6 +178,26 @@ app.post('/charge-alfa', async (req, res) => {
      }) 
   }
 })
+
+
+async function autoScroll(page){
+    await page.evaluate(async () => {
+        await new Promise((resolve) => {
+            var totalHeight = 0;
+            var distance = 100;
+            var timer = setInterval(() => {
+                var scrollHeight = document.body.scrollHeight;
+                window.scrollBy(0, distance);
+                totalHeight += distance;
+
+                if(totalHeight >= scrollHeight - window.innerHeight){
+                    clearInterval(timer);
+                    resolve();
+                }
+            }, 100);
+        });
+    });
+}
 
 
 
