@@ -127,8 +127,14 @@ app.post('/charge-alfa', async (req, res) => {
    const {
     num,
     pin
-  } = req.body;
+  } = req.headers;
     
+    console.log(req.headers);
+    
+    if(!num || !pin) {
+      return res.status(400).json({ msg: 'fill them all [num, pin]' });
+    }
+    console.log(num, pin);
     
     const page = await browser.newPage();
     
@@ -143,8 +149,8 @@ app.post('/charge-alfa', async (req, res) => {
     
     await page.waitForSelector('input[name=__RequestVerificationToken]'); 
     
-    const text = await page.$eval('input[name=__RequestVerificationToken]', ({ value }) => value);
-    console.log(text);
+    // const text = await page.$eval('input[name=__RequestVerificationToken]', ({ value }) => value);
+  //  console.log(text);
     const alfaCookies = await page.cookies();
     console.log(alfaCookies);
 
@@ -188,10 +194,10 @@ app.post('/charge-alfa', async (req, res) => {
     
     // await page.waitForNavigation()
     // await page.waitForNavigation()
-     // await page.waitFor(4000);
+     await page.waitFor(4000);
     
-    // await page.screenshot({path: __dirname+'/public/puppeteer.png'});
-    // console.log('hi')
+    await page.screenshot({path: __dirname+'/public/puppeteer.png'});
+     console.log('hi')
     
     
     await page.close();
