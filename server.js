@@ -54,7 +54,7 @@ app.post('/charge-mtc', async (req, res) => {
    const {
     num,
     pin
-  } = req.body;
+  } = req.headers;
          
     
     const page = await browser.newPage();
@@ -99,7 +99,13 @@ app.post('/charge-mtc', async (req, res) => {
     
     
     await page.$eval('form[name="ThirdPartyRechargeForm"]', form => form.submit());
-    await page.waitForNavigation()
+    // await page.waitForNavigation()
+    
+     await page.waitFor(4000);
+    
+    
+    const result = await page.$eval('ul.forms > div.errorStrip', ({ textContent }) => textContent);
+    console.log(result);
   
  
     
@@ -107,7 +113,7 @@ app.post('/charge-mtc', async (req, res) => {
     await page.close();
   // res.sendFile(__dirname+'/public/puppeteer.png');
     res.json({
-      msg: 'the request has been sent successfully' 
+      msg: result 
     })
     
   } catch (error) {
@@ -185,6 +191,12 @@ app.post('/charge-alfa', async (req, res) => {
      
     // await page.keyboard.press('Enter');
      await page.$eval('form.form', form => form.submit());
+    
+     await page.waitFor(4000);
+    
+    
+    const result = await page.$eval('div.alert > span', ({ textContent }) => textContent);
+     console.log(result);
 
     
   //  await page.waitForSelector('button[type=submit]');
@@ -194,15 +206,14 @@ app.post('/charge-alfa', async (req, res) => {
     
     // await page.waitForNavigation()
     // await page.waitForNavigation()
-     await page.waitFor(4000);
     
-    await page.screenshot({path: __dirname+'/public/puppeteer.png'});
-     console.log('hi')
+    // await page.screenshot({path: __dirname+'/public/puppeteer.png'});
+    //  console.log('hi')
     
     
     await page.close();
     res.json({
-      msg: 'the request has been sent successfully' 
+      msg: result
     })
     
   } catch (error) {
@@ -212,7 +223,6 @@ app.post('/charge-alfa', async (req, res) => {
      }) 
   }
 })
-
 
 
 
