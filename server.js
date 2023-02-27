@@ -4,6 +4,9 @@ const express = require('express'),
 let browser; 
 let cookies;
 
+const devices = require('puppeteer/DeviceDescriptors');
+const iPhonex = devices['iPhone X'];
+
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -129,41 +132,66 @@ app.post('/charge-alfa', async (req, res) => {
     
     const page = await browser.newPage();
     
-    await page.goto('https://www.alfa.com.lb/en/account/pay-and-recharge/prepaid/scratch-card',{waitUntil: 'networkidle0'});
+    await page.emulate(iPhonex);
+    
+    await page.goto('https://www.alfa.com.lb/en/account/pay-and-recharge/prepaid/scratch-card', { waitUntil: 'networkidle0' } );
     await page.setDefaultNavigationTimeout(0);
     await page.setViewport({ width: 0, height: 0 });
     
    
+    // await page.waitFor(3000);
     
-    await page.focus('input#Number')
+    await page.waitForSelector('input[name=__RequestVerificationToken]'); 
+    
+    const text = await page.$eval('input[name=__RequestVerificationToken]', ({ value }) => value);
+    console.log(text);
+    const alfaCookies = await page.cookies();
+    console.log(alfaCookies);
+
+    
+    await page.focus('input#Number') 
     await page.keyboard.type(num)
     
+    // const text = await page.evaluate(() => {
+    //     const anchor = document.querySelector('input#Number');
+    //     return anchor.textContent;
+    // });
+    
+    // const text = await page.$eval("input#Number", (input) => {
+    //  return input.getAttribute("value")
+    // });
+    
+    // this one works
+    // const text = await page.$eval('input#Number', ({ value }) => value);
+    
+     
     await page.focus('input#NumberConfirm')
     await page.keyboard.type(num)
     
+     
     await page.focus('input#RechargeCode')
     await page.keyboard.type(pin)
     
-    await page.waitFor(1000);
-    await autoScroll(page);
+    
+    
     // await page.$eval('form', form => form.submit());
     //await page.click("button[type=submit]");
      
     // await page.keyboard.press('Enter');
+     await page.$eval('form.form', form => form.submit());
+
     
-    // await page.$eval('form.form', form => form.submit());
-    
-    await page.waitForSelector('button[type=submit]');
-    await page.focus('button[type=submit]')
-    await page.click('button[type=submit]');  
-    
-    
-    await page.waitForNavigation()
-    
-    await page.screenshot({path: __dirname+'/public/puppeteer.png'});
+  //  await page.waitForSelector('button[type=submit]');
+   // await page.focus('button[type=submit]')
+   // await page.click('button[type=submit]');  
     
     
-  
+    // await page.waitForNavigation()
+    // await page.waitForNavigation()
+     // await page.waitFor(4000);
+    
+    // await page.screenshot({path: __dirname+'/public/puppeteer.png'});
+    // console.log('hi')
     
     
     await page.close();
@@ -179,25 +207,6 @@ app.post('/charge-alfa', async (req, res) => {
   }
 })
 
-
-async function autoScroll(page){
-    await page.evaluate(async () => {
-        await new Promise((resolve) => {
-            var totalHeight = 0;
-            var distance = 100;
-            var timer = setInterval(() => {
-                var scrollHeight = document.body.scrollHeight;
-                window.scrollBy(0, distance);
-                totalHeight += distance;
-
-                if(totalHeight >= scrollHeight - window.innerHeight){
-                    clearInterval(timer);
-                    resolve();
-                }
-            }, 100);
-        });
-    });
-}
 
 
 
