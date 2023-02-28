@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
 
 // app.get('/show-state', (req, res) => {
 //   try {
-//     res.sendFile(__dirname+'/public/puppeteer.png');
+//     res.sendFile(__dirname+'/public/puppeteer2.png');
 //   } catch (err) {
 //     res.json({ msg: err.message })
 //   }
@@ -55,6 +55,14 @@ app.post('/charge-mtc', async (req, res) => {
     num,
     pin
   } = req.headers;
+    
+    if(!num || !pin) {
+      return res.status(400).json({ msg: 'fill them all [num, pin]' });
+    }
+    
+    res.json({
+        msg: 'the request has been sent successfully'
+      })
          
     
     const page = await browser.newPage();
@@ -113,15 +121,15 @@ app.post('/charge-mtc', async (req, res) => {
     
     await page.close();
   // res.sendFile(__dirname+'/public/puppeteer.png');
-    res.json({
-      msg: result 
-    })
+    // res.json({
+    //   msg: result 
+    // })
     
   } catch (error) {
     console.log(error);
-    res.json({
-     msg: `an error occurred ${error.message}`
-     }) 
+    // res.json({
+    //  msg: `an error occurred ${error.message}`
+    //  }) 
   }
 })
 
@@ -142,6 +150,11 @@ app.post('/charge-alfa', async (req, res) => {
       return res.status(400).json({ msg: 'fill them all [num, pin]' });
     }
     console.log(num, pin);
+    
+    res.json({
+      msg: 'the request has been sent successfully'
+    })
+    
     
     const page = await browser.newPage();
     
@@ -191,11 +204,16 @@ app.post('/charge-alfa', async (req, res) => {
     //await page.click("button[type=submit]");
      
     // await page.keyboard.press('Enter');
+    // await page.screenshot({path: __dirname+'/public/puppeteer.png'});
+    
      await page.$eval('form.form', form => form.submit());
     
      // await page.waitFor(4000);
     
     await page.waitForSelector('form.form');
+    
+    // await page.screenshot({path: __dirname+'/public/puppeteer2.png'});
+    
      
     
     
@@ -211,20 +229,17 @@ app.post('/charge-alfa', async (req, res) => {
     // await page.waitForNavigation()
     // await page.waitForNavigation()
     
-    // await page.screenshot({path: __dirname+'/public/puppeteer.png'});
     //  console.log('hi')
     
     
     await page.close();
-    res.json({
-      msg: result
-    })
+    
     
   } catch (error) {
     console.log(error);
-    res.json({
-     msg: `an error occurred ${error.message}`
-     }) 
+    // res.json({
+    //  msg: `an error occurred ${error.message}`
+    //  }) 
   }
 })
 
