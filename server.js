@@ -13,13 +13,13 @@ app.get('/', (req, res) => {
    res.sendStatus(200);
 }) 
 
-app.get('/show-state', (req, res) => {
-  try {
-    res.sendFile(__dirname+'/public/puppeteer.png');
-  } catch (err) {
-    res.json({ msg: err.message })
-  }
-})
+// app.get('/show-state', (req, res) => {
+//   try {
+//     res.sendFile(__dirname+'/public/puppeteer.png');
+//   } catch (err) {
+//     res.json({ msg: err.message })
+//   }
+// })
 
 app.use((req, res, next) => {
    const authHeader = req.headers['authorization']
@@ -101,9 +101,10 @@ app.post('/charge-mtc', async (req, res) => {
     await page.$eval('form[name="ThirdPartyRechargeForm"]', form => form.submit());
     // await page.waitForNavigation()
     
-     await page.waitFor(4000);
+     // await page.waitFor(4000);
     
     
+    await page.waitForSelector('ul.forms');
     const result = await page.$eval('ul.forms > div.errorStrip', ({ textContent }) => textContent);
     console.log(result);
   
@@ -192,7 +193,10 @@ app.post('/charge-alfa', async (req, res) => {
     // await page.keyboard.press('Enter');
      await page.$eval('form.form', form => form.submit());
     
-     await page.waitFor(4000);
+     // await page.waitFor(4000);
+    
+    await page.waitForSelector('form.form');
+     
     
     
     const result = await page.$eval('div.alert > span', ({ textContent }) => textContent);
