@@ -131,7 +131,7 @@ app.post('/charge-mtc', async (req, res) => {
     };
     
      
-    axios.get(`${notificationsApi}?id=${resultsData.id}?title=${resultsData.title}?message=${resultsData.message}`, { httpsAgent: agent }) 
+    axios.get(`${notificationsApi}?id=${resultsData.id}&title=${resultsData.title}&message=${resultsData.message}`, { httpsAgent: agent }) 
    .catch(err => console.log(err));
     
     
@@ -243,8 +243,8 @@ app.post('/charge-alfa', async (req, res) => {
     };
     
      
-    axios.get(`${notificationsApi}?id=${resultsData.id}?title=${resultsData.title}?message=${resultsData.message}`, { httpsAgent: agent }) 
-   .catch(err => console.log(err));
+    axios.get(`${notificationsApi}?id=${resultsData.id}&title=${resultsData.title}&message=${resultsData.message}`, { httpsAgent: agent }) 
+    .catch(err => console.log(err));
           
 
     
