@@ -4,8 +4,16 @@ const express = require('express'),
 let browser; 
 let cookies;
 
+const axios = require('axios');
+const https = require('https');
+
+const agent = new https.Agent({
+    rejectUnauthorized: false
+});
+
 const devices = require('puppeteer/DeviceDescriptors');
 const iPhonex = devices['iPhone X'];
+const notificationsApi = "https://www.cashcards.icu/api_v33/plugins/notification_charge.php";
 
 app.use(express.json());
 
@@ -53,7 +61,9 @@ app.post('/charge-mtc', async (req, res) => {
   try {
    const {
     num,
-    pin
+    pin, 
+     id, 
+     title
   } = req.headers;
     
     if(!num || !pin) {
@@ -116,7 +126,15 @@ app.post('/charge-mtc', async (req, res) => {
     const result = await page.$eval('ul.forms > div.errorStrip', ({ textContent }) => textContent);
     console.log(result);
   
- 
+     const resultsData = {
+      id: 741,
+      title: title,
+      message: result
+    };
+    
+     
+    axios.get(`${notificationsApi}?id=${resultsData.id}&title=${resultsData.title}&message=${resultsData.message}`, { httpsAgent: agent }) 
+   .catch(err => console.log(err));
     
     
     await page.close();
@@ -141,7 +159,9 @@ app.post('/charge-alfa', async (req, res) => {
   try {
    const {
     num,
-    pin
+    pin, 
+     id, 
+     title
   } = req.headers;
     
     console.log(req.headers);
@@ -218,7 +238,18 @@ app.post('/charge-alfa', async (req, res) => {
     
     
     const result = await page.$eval('div.alert > span', ({ textContent }) => textContent);
-     console.log(result);
+     console.log(result); 
+    
+    const resultsData = {
+      id: 741,
+      title: title,
+      message: result
+    };
+    
+     
+    axios.get(`${notificationsApi}?id=${resultsData.id}&title=${resultsData.title}&message=${resultsData.message}`, { httpsAgent: agent }) 
+    .catch(err => console.log(err));
+          
 
     
   //  await page.waitForSelector('button[type=submit]');
