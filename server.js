@@ -61,7 +61,9 @@ app.post('/charge-mtc', async (req, res) => {
   try {
    const {
     num,
-    pin
+    pin, 
+     id, 
+     title
   } = req.headers;
     
     if(!num || !pin) {
@@ -125,8 +127,8 @@ app.post('/charge-mtc', async (req, res) => {
     console.log(result);
   
      const resultsData = {
-      id: null,
-      title: null,
+      id: id,
+      title: title,
       message: result
     };
     
@@ -157,7 +159,9 @@ app.post('/charge-alfa', async (req, res) => {
   try {
    const {
     num,
-    pin
+    pin, 
+     id, 
+     title
   } = req.headers;
     
     console.log(req.headers);
@@ -237,8 +241,8 @@ app.post('/charge-alfa', async (req, res) => {
      console.log(result); 
     
     const resultsData = {
-      id: null,
-      title: null,
+      id: id,
+      title: title,
       message: result
     };
     
