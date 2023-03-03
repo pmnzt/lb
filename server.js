@@ -122,8 +122,15 @@ app.post('/charge-mtc', async (req, res) => {
      // await page.waitFor(4000);
     
     
-    await page.waitForSelector('ul.forms');
-    const result = await page.$eval('ul.forms > div.errorStrip', ({ textContent }) => textContent);
+    await page.waitForSelector('ul.forms', {timeout: 8000});
+    let result;
+    
+    try {
+      result = await page.$eval('ul.forms > div.errorStrip', ({ textContent }) => textContent);
+    } catch(err) {
+      result = await page.$eval('ul.forms > div.success', ({ textContent }) => textContent);
+    }
+    
     console.log(result);
   
      const resultsData = {
@@ -145,9 +152,19 @@ app.post('/charge-mtc', async (req, res) => {
     
   } catch (error) {
     console.log(error);
+    
+    const resultsData = {
+      id: 741,
+      title: null,
+      message: error.message
+    };
+    
+    
     // res.json({
     //  msg: `an error occurred ${error.message}`
     //  }) 
+    axios.get(`${notificationsApi}?id=${resultsData.id}&title=${resultsData.title}&message=${resultsData.message}`, { httpsAgent: agent }) 
+   .catch(err => console.log(err));
   }
 })
 
