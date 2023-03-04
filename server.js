@@ -122,23 +122,37 @@ app.post('/charge-mtc', async (req, res) => {
      // await page.waitFor(4000);
     
     
-    await page.waitForSelector('ul.forms', {timeout: 8000});
     let result;
     
-    try {
-      result = await page.$eval('ul.forms > div.errorStrip', ({ textContent }) => textContent);
-    } catch(err) {
-      result = await page.$eval('ul.forms > div.success', ({ textContent }) => textContent);
-    }
-    
-    console.log(result);
-  
-     const resultsData = {
+    const resultsData = {
       id: 741,
       title: title,
-      message: result
+      message: null
     };
     
+    let feedBackSelector;
+    
+    try {
+      await page.waitForSelector('ul.forms', {timeout: 8000});
+      feedBackSelector = true;
+    } catch(err) {
+      feedBackSelector = false;
+      result = `Error: No feedback, please try again if charging failed`;
+      resultsData.title = `Phone number: ${num} | pin: ${pin}`;
+    }
+    
+    if(feedBackSelector) {
+          try {
+            result = await page.$eval('ul.forms > div.errorStrip', ({ textContent }) => textContent);
+          } catch(err) {
+            result = await page.$eval('ul.forms > div.success', ({ textContent }) => textContent);
+          }
+    }
+    
+    resultsData.message = result;
+    
+    console.log(result);
+
      
     axios.get(`${notificationsApi}?id=${resultsData.id}&title=${resultsData.title}&message=${resultsData.message}`, { httpsAgent: agent }) 
    .catch(err => console.log(err));
